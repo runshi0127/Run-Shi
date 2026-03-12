@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Run Shi</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Google Sans', 'Roboto', Arial, sans-serif;
+  background: #fff;
+  color: #202124;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+}
+
+.nav-logo {
+  font-size: 18px;
+  font-weight: 500;
+  color: #202124;
+  text-decoration: none;
+}
+
+.nav-links { display: flex; gap: 0; }
+.nav-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: #5f6368;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background 0.1s, color 0.1s;
+}
+.nav-links a:hover { background: #f1f3f4; color: #202124; }
+.nav-links a.active { color: #1a73e8; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* CONTENT WIDTH */
+.wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
+}
+
+/* HOME */
+.home-layout {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+
+.home-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: #e8eaed;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  color: #9aa0a6;
+  overflow: hidden;
+}
+
+.home-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.home-text {}
+
+.home-name {
+  font-size: 32px;
+  font-weight: 400;
+  color: #202124;
+  margin-bottom: 4px;
+}
+
+.home-title {
+  font-size: 15px;
+  color: #5f6368;
+  margin-bottom: 20px;
+}
+
+.home-bio {
+  font-size: 15px;
+  color: #3c4043;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.home-links {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.home-links a {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a73e8;
+  text-decoration: none;
+  padding: 8px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+.home-links a:hover { background: #f1f3f4; }
+
+/* SECTION */
+h2 {
+  font-size: 22px;
+  font-weight: 400;
+  color: #202124;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+/* PROJECT */
+.proj-item {
+  margin-bottom: 64px;
+  padding-bottom: 64px;
+  border-bottom: 1px solid #e0e0e0;
+}
+.proj-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+/* Big project title block like Chia-Ling's layout */
+.proj-eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a73e8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.proj-name {
+  font-size: 28px;
+  font-weight: 400;
+  color: #202124;
+  margin-bottom: 4px;
+  line-height: 1.25;
+}
+
+.proj-subtitle {
+  font-size: 16px;
+  color: #5f6368;
+  font-weight: 400;
+  margin-bottom: 16px;
+}
+
+.proj-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.proj-date {
+  font-size: 13px;
+  color: #9aa0a6;
+}
+
+.proj-where {
+  font-size: 13px;
+  color: #9aa0a6;
+}
+
+.proj-tags {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 28px;
+}
+.proj-tag {
+  font-size: 12px;
+  color: #5f6368;
+  background: #f1f3f4;
+  border-radius: 12px;
+  padding: 3px 12px;
+}
+
+/* Section blocks: Concept / Design / Result */
+.proj-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.proj-section {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 0 32px;
+  padding: 16px 0;
+  border-top: 1px solid #f1f3f4;
+}
+.proj-section:last-child { border-bottom: 1px solid #f1f3f4; }
+
+.proj-section-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #9aa0a6;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-top: 2px;
+}
+
+.proj-section-content {
+  font-size: 14px;
+  color: #3c4043;
+  line-height: 1.75;
+}
+
+.proj-section-content ul {
+  padding-left: 18px;
+  margin: 0;
+}
+.proj-section-content ul li { margin-bottom: 4px; }
+
+.award {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #188038;
+  background: #e6f4ea;
+  border-radius: 12px;
+  padding: 2px 10px;
+}
+
+/* Project hero image (beside title) */
+.proj-hero {
+  display: grid;
+  align-items: stretch;
+  grid-template-columns: 1fr 260px;
+  gap: 32px;
+  align-items: flex-start;
+}
+
+.proj-hero-info { min-width: 0; }
+
+.proj-hero-img-placeholder {
+  width: 260px;
+  height: 180px;
+  border-radius: 6px;
+  background: #f1f3f4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  border: 1.5px dashed #dadce0;
+}
+.proj-hero-img-placeholder span {
+  font-size: 11px;
+  color: #9aa0a6;
+  font-family: monospace;
+}
+.proj-hero-img {
+  width: 300px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+/* Gallery below sections */
+.proj-gallery {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: nowrap; /* 强制一行，不换行 */
+}
+.proj-gallery-placeholder {
+  flex: 1;
+  min-width: 0; /* 防止内容撑破 */
+  aspect-ratio: 4/3;
+  border-radius: 6px;
+  background: #f1f3f4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px dashed #dadce0;
+}
+.proj-gallery-placeholder span {
+  font-size: 10px;
+  color: #9aa0a6;
+  font-family: monospace;
+  text-align: center;
+  padding: 0 4px;
+}
+.proj-gallery-img {
+  flex: 1;
+  min-width: 0;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+/* ← 新增：视频和图片统一处理 */
+.proj-gallery video,
+.proj-gallery img {
+  flex: 1;
+  min-width: 0;
+  height: 200px;       /* ← 在这里调整gallery高度 */
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .proj-hero { grid-template-columns: 1fr; }
+  .proj-hero-img, .proj-hero-img-placeholder { width: 100%; height: 200px; }
+  .proj-section { grid-template-columns: 1fr; gap: 4px; }
+  .proj-name { font-size: 22px; }
+  .proj-gallery { flex-wrap: wrap; } /* 手机上允许换行 */
+  .proj-gallery-img,
+  .proj-gallery-placeholder,
+  .proj-gallery video,
+  .proj-gallery img { flex: 0 0 calc(50% - 5px); height: 150px; }
+}
+
+/* RESEARCH */
+.research-item {
+  margin-bottom: 36px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid #f1f3f4;
+}
+.research-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+.research-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #202124;
+  margin-bottom: 2px;
+}
+
+.research-where {
+  font-size: 14px;
+  color: #5f6368;
+  margin-bottom: 10px;
+}
+
+.research-body {
+  font-size: 14px;
+  color: #3c4043;
+  line-height: 1.7;
+}
+.research-body ul { padding-left: 20px; }
+.research-body ul li { margin-bottom: 4px; }
+
+/* RESUME */
+.resume-section { margin-bottom: 36px; }
+.resume-section h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #5f6368;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.edu-item { margin-bottom: 20px; }
+.edu-degree { font-size: 15px; font-weight: 500; color: #202124; }
+.edu-school { font-size: 14px; color: #5f6368; }
+.edu-date { font-size: 13px; color: #9aa0a6; margin-bottom: 4px; }
+.edu-detail { font-size: 13px; color: #5f6368; line-height: 1.6; }
+.edu-rank {
+  display: inline-block; margin-top: 4px;
+  font-size: 12px; color: #1a73e8;
+  background: #e8f0fe; border-radius: 12px; padding: 2px 9px;
+}
+
+.exp-item { margin-bottom: 20px; }
+.exp-role { font-size: 15px; font-weight: 500; color: #202124; }
+.exp-where { font-size: 14px; color: #5f6368; }
+.exp-date { font-size: 13px; color: #9aa0a6; margin-bottom: 6px; }
+.exp-detail { font-size: 14px; color: #3c4043; line-height: 1.65; }
+.exp-detail ul { padding-left: 18px; }
+.exp-detail ul li { margin-bottom: 3px; }
+
+.skills-row { font-size: 14px; color: #3c4043; line-height: 1.7; }
+.skills-row span { font-weight: 500; color: #202124; }
+
+@media (max-width: 640px) {
+  nav { padding: 0 16px; }
+  .wrap { padding: 32px 16px 60px; }
+  .home-layout { flex-direction: column; gap: 24px; }
+  .proj-section { grid-template-columns: 1fr; gap: 4px; }
+  .proj-name { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo" onclick="show('home');return false;">Run Shi</a>
+  <div class="nav-links">
+    <a href="#" id="n-home" class="active" onclick="show('home');return false;">Home</a>
+    <a href="#" id="n-project" onclick="show('project');return false;">Project</a>
+    <a href="#" id="n-research" onclick="show('research');return false;">Research</a>
+    <a href="#" id="n-resume" onclick="show('resume');return false;">Resume</a>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div id="p-home" class="page active">
+<div class="wrap">
+  <div class="home-layout">
+    <div class="home-photo">
+      <img src="D:\Stanford\Photo.jpg" alt="Run Shi">
+    </div>
+    <div class="home-text">
+      <div class="home-name">Run Shi</div>
+      <div class="home-title">M.S. in Mechanical Engineering · Stanford University</div>
+      <p class="home-bio">
+        I am currently pursuing an M.S. in Mechanical Engineering at Stanford University. I earned my B.Eng. in Energy and Power Engineering from Shanghai Jiao Tong University where I developed strong skills in mechanical design, thermal engineering, mechatronics integration. With an exchange semester at Karlsruhe Institute of Technology in Germany.
+      </p>
+      <p class="home-bio">
+        In my professional experience, I previously worked as an interned at Tesla as a Hardware Test Engineer, working on high voltage and low voltage reliability testing, where I implemented reliability test, abuse test to high voltage battery, low voltage battery, drive unit, high voltage distribution device. This role allowed me to deepen my problem-solving abilities while tackling complex, real-world engineering challenges.
+      </p>
+      <p class="home-bio">
+        During my undergraduate and graduate studies, I am always eager to deepsen my hands-on experience. During my undergraduate study, I led the design of a robot for Automatic Planting of Pike Seedings in Desert, which use an innovative hollow drill seedling mechanism, significantly improving planting efficiency
+        and seedling survival rates in harsh desert environments, earning Tencent top 1% investment award. During my first year study in Stanford, I built a autonomous curling robot in 3 weeks which successfully completed all tasks and ranked 5th out of 20teams in the checkoff.
+        
+      </p>
+      <p class="home-bio">
+        Driven by my commitment to solving human-oriented real-worl problem, my research spans piezoelectric biocomposites, and elastocaloric solid-state cooling. 
+      </p>
+      <p class="home-bio">
+        In my free time, I enjoy hiking, basketball and reading. Feel free to reach out with any questions or opportunities!
+      </p>
+      <div class="home-links">
+        <a href="#" onclick="show('project');return false;">Project</a>
+        <a href="#" onclick="show('resume');return false;">Resume</a>
+        <a href="/cdn-cgi/l/email-protection#7003181902051e4041424730171d11191c5e131f1d">Email</a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════ PROJECT ═══════════════════════ -->
+<div id="p-project" class="page active">
+<div class="wrap">
+  <h2>Projects</h2>
+
+  <!-- Project 1 -->
+  <div class="proj-item">
+    <div class="proj-hero">
+      <div class="proj-hero-info">
+        <div class="proj-eyebrow">Stanford University · ME 210</div>
+        <div class="proj-name">Autonomous Curling Robot</div>
+        <div class="proj-subtitle">DROID — Head-to-head competitive autonomous robot</div>
+        <div class="proj-meta">
+          <span class="proj-date">Feb 2026 – Mar 2026</span>
+          <span class="proj-where">Stanford, CA</span>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">Arduino Mega</span>
+          <span class="proj-tag">State Machine</span>
+          <span class="proj-tag">IR Sensors</span>
+          <span class="proj-tag">Ultrasonic Sensors</span>
+          <span class="proj-tag">Servo Motor</span>
+          <span class="proj-tag">Mechanical Design</span>
+        </div>
+      </div>
+      <img class="proj-hero-img" src="curling robot.jpg" alt="Autonomous Curling Robot">
+    </div>
+
+    <div class="proj-sections">
+      <div class="proj-section">
+        <div class="proj-section-label">Concept</div>
+        <div class="proj-section-content">
+          Designed and built a fully autonomous robot to compete in a head-to-head curling match on a 16-foot arena within 3 weeks. Starting from a random position, the robot must self-orient, follow a line to the shooting point, launch 8-oz steel pucks into the scoring area, and return to base for reloading — all within a 2-minute time limit and a 13 × 13 in starting footprint.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Mechanical Design</div>
+        <div class="proj-section-content">
+          Used ultrasonic sensors for initial orientation and IR sensors for line following and positioning. For shooting, a servo motor pushes the puck down a slide that converts gravitational potential energy into forward speed. An initial flywheel design was tested but removed — the servo-and-slide combination proved sufficient and simpler to tune. To ensure straight launches, the servo was deliberately offset from the central axis to cancel the angular bias introduced by the circular puck storage ring, maximizing momentum transfer while keeping the overall center of mass balanced.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Algorithm</div>
+        <div class="proj-section-content">
+          The state machine runs four phases: <strong>(1) Corner alignment</strong> — four ultrasonic sensors (two rear, two left) rotate the robot until both pairs read equal distances, confirming alignment parallel to the walls. <strong>(2) Line acquisition</strong> — the robot advances until a rear IR sensor detects the hogline, then turns right until the front-right IR sensor picks up the center line. <strong>(3) Line following &amp; shooting</strong> — three mid-IR sensors steer the robot (left/right correction or straight), stopping when both front IR sensors detect the shooting line; a 360° servo then dispenses all pucks over 2 seconds. <strong>(4) Return &amp; reload</strong> — the robot reverses along the line, stops when the rear ultrasonic reads under 10 cm, rotates to face the starting zone, and waits 10 seconds before repeating the cycle.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Result</div>
+        <div class="proj-section-content">
+          Successfully completed all autonomous tasks — orientation, line following, puck dispensing, and return-to-base — within the 2-minute time limit. <strong>Ranked 5th out of 20 teams</strong> in the final checkoff.
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-gallery">
+      <img class="proj-gallery-img" src="IMG_2924.jpg" alt="photo 1">
+      <img class="proj-gallery-img" src="IMG_2925.jpg" alt="photo 2">
+      <img class="proj-gallery-img" src="IMG_2926.jpg" alt="photo 3">
+    </div>
+  </div>
+
+  <!-- Project 2 -->
+  <div class="proj-item">
+    <div class="proj-hero">
+      <div class="proj-hero-info">
+        <div class="proj-eyebrow">Shanghai Jiao Tong University · Student Innovation Practice Program (IPP28037)</div>
+        <div class="proj-name">Saxaul Seedling Auto-Planting Robot</div>
+        <div class="proj-subtitle">Autonomous desert reforestation vehicle with hollow-drill seedling mechanism</div>
+        <div class="proj-meta">
+          <span class="proj-date">Oct 2023 – Sep 2024</span>
+          <span class="proj-where">Shanghai, China · Tengger Desert, Gansu</span>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">SolidWorks</span>
+          <span class="proj-tag">3D Printing</span>
+          <span class="proj-tag">Laser Cutting</span>
+          <span class="proj-tag">Arduino</span>
+          <span class="proj-tag">Mechanism Design</span>
+          <span class="proj-tag">Field Testing</span>
+          <span class="proj-tag">Team Lead</span>
+        </div>
+      </div>
+      <video class="proj-hero-img" src="Project2whole.mp4" autoplay loop muted playsinline></video>
+    </div>
+
+    <div class="proj-sections">
+      <div class="proj-section">
+        <div class="proj-section-label">Concept</div>
+        <div class="proj-section-content">
+          Saxaul trees are critical for combating desertification in northwestern China — they anchor soil and support the cultivation of Cistanche, a high-value medicinal crop. However, harsh desert conditions (sandstorms, wild rabbits, gerbil damage) result in low survival rates. This project designed an autonomous solar-powered trolley to patrol a planting base, replant seedlings, and return to charge automatically — enabling unattended, scalable reforestation.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Design</div>
+        <div class="proj-section-content">
+          The vehicle integrates three core subsystems. The <strong>seedling warehouse</strong> uses a roller mechanism (stepper motor, 1:380 gear ratio) to dispense one seedling per cycle from a dual-sided acrylic tray. The <strong>transport mechanism</strong> uses a linkage-driven cylindrical tube with a gear-rack opening device and internal spring to orient and deliver the seedling upright to the drill. The <strong>hollow drill</strong> — the core innovation — is a T-thread (pitch 10 mm) alloy screw that rotates into the sand while a fish-line/steel-wire internal mechanism opens the drill tip at depth to deposit the seedling, then retracts to close. The chassis uses four independently driven soft rubber wheels with an Ackermann steering system adapted for loose sand.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Result</div>
+        <div class="proj-section-content">
+          Conducted field testing at the Tengger Desert in Gansu during winter break. Identified and resolved drill penetration issues by adding a ball screw, widening the thread profile, and upgrading to a higher-torque stepper motor. FEA in SolidWorks SimulationXpress confirmed the drill's structural safety factor exceeded 1.19×10⁶. The final prototype successfully completed the full planting cycle: seedling dispensing, upright transport, drill descent, tip opening, seedling deposit, and drill retraction.
+          <div class="award">🏆 Top 1% Investment Award — Tencent 'Light' Technology Charity Creation Camp</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-gallery">
+      <video src="Project2_1.mp4" autoplay loop muted playsinline></video>
+      <video src="Project2_2.mp4" autoplay loop muted playsinline></video>
+      <video src="Project2.mp4" autoplay loop muted playsinline></video>
+    </div>
+  </div>
+
+  <!-- Project 3
+  <div class="proj-item">
+    <div class="proj-hero">
+      <div class="proj-hero-info">
+        <div class="proj-eyebrow">Shanghai Jiao Tong University</div>
+        <div class="proj-name">Mass Testing System</div>
+        <div class="proj-subtitle">Automated data acquisition and quality measurement via LabVIEW</div>
+        <div class="proj-meta">
+          <span class="proj-date">Dec 2023 – Jan 2024</span>
+          <span class="proj-where">Shanghai, China</span>
+        </div>
+        <div class="proj-tags">
+          <span class="proj-tag">LabVIEW</span>
+          <span class="proj-tag">Signal Processing</span>
+          <span class="proj-tag">Data Acquisition</span>
+        </div>
+      </div>
+      <div class="proj-hero-img-placeholder">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>hero image</span>
+      </div>
+    </div>
+
+    <div class="proj-sections">
+      <div class="proj-section">
+        <div class="proj-section-label">Concept</div>
+        <div class="proj-section-content">
+          Designed a comprehensive mass testing system to automate data acquisition and quality measurement, replacing manual testing workflows with a reliable, industry-standard solution.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Design</div>
+        <div class="proj-section-content">
+          Developed the system in LabVIEW with advanced signal processing techniques including low-pass filtering and array conversion. Implemented an algorithm to convert raw voltage output into accurate quality measurements, and integrated hardware components for seamless end-to-end operation.
+        </div>
+      </div>
+      <div class="proj-section">
+        <div class="proj-section-label">Result</div>
+        <div class="proj-section-content">
+          Delivered a high-reliability system meeting stringent industry standards.
+          <div class="award">⭐ Top 10% Excellent Group</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="proj-gallery">
+      <div class="proj-gallery-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>photo 1</span>
+      </div>
+      <div class="proj-gallery-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>photo 2</span>
+      </div>
+      <div class="proj-gallery-placeholder">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span>photo 3</span>
+      </div>
+    </div>
+  </div> -->
+
+</div>
+</div>
+
+<!-- ═══════════════════════ RESEARCH ═══════════════════════ -->
+<div id="p-research" class="page">
+<div class="wrap">
+  <h2>Research</h2>
+
+  <div class="research-item">
+    <div class="research-title">Injectable In-situ Formed Piezoelectric Biocomposites with Magnetic Alignment</div>
+    <div class="research-where">Stanford University · Stanford, CA · Sep 2025 – Present</div>
+    <div class="research-body">
+      <ul>
+        <li>Fabricated Janus heterostructures with single-sided magnetism by depositing ultra-thin layers of superparamagnetic nanoparticles onto microrods via Electro-hydro Dynamic (EHD) coating.</li>
+        <li>Designed and implemented a magnetic-assisted alignment strategy to orient microrods, overcoming the challenge of random dipole distribution and enhancing the macroscopic piezoelectric constant.</li>
+        <li>Developed an HSA-BB-EOH-based injectable and biocompatible composite, achieving rapid in-situ gelation in physiological environments via solvent exchange mechanisms.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="research-item">
+    <div class="research-title">Thermodynamic Study on Ferroelectric Polymer Films</div>
+    <div class="research-where">Forward Interdisciplinary Research Center, SJTU · Shanghai, China · Oct 2024 – Jun 2025</div>
+    <div class="research-body">
+      <ul>
+        <li>Improvement on material properties on the performance of refrigeration devices based on force-electrical-thermal coupling parameters.</li>
+        <li>Application of soft material property testing methods and characterization tools, including electrocaloric effect testing, dielectric property testing, polarization measurements, and experimental testing of displacement and stress under electric field drive.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="research-item">
+    <div class="research-title">Cascade-unit Elastocaloric Cooling Regenerator</div>
+    <div class="research-where">Institute of Microstructure Technology, KIT · Karlsruhe, Germany · Jun 2024 – Sep 2024</div>
+    <div class="research-body">
+      <ul>
+        <li>Engineered 3D models using Creo software to design an innovative elastocaloric experimental platform, enhancing the efficiency of solid-state cooling systems.</li>
+        <li>Performed finite element analysis using Ansys to optimize machine parts, ensuring they meet rigorous strength requirements while maximizing cooling performance.</li>
+        <li>Designed a variable cross-sectional area compression device applicable to different cross-sectional area sizes of the elasto-thermal structure.</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════ RESUME ═══════════════════════ -->
+<div id="p-resume" class="page">
+<div class="wrap">
+  <h2>Resume</h2>
+
+  <div class="resume-section">
+    <h3>Education</h3>
+    <div class="edu-item">
+      <div class="edu-date">Sep 2025 – Present</div>
+      <div class="edu-degree">M.S. in Mechanical Engineering</div>
+      <div class="edu-school">Stanford University · California, United States</div>
+      <div class="edu-detail">Programming Methodology, Thermodynamics, Introduction to Theoretical Statistics, Programming Abstractions, Introduction to Mechatronics</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-date">Sep 2021 – Jun 2025</div>
+      <div class="edu-degree">B.Eng. in Energy and Power Engineering</div>
+      <div class="edu-school">Shanghai Jiao Tong University · Shanghai, China</div>
+      <div class="edu-detail">Numerical Simulation of Mechanical and Power Engineering (95), Engineering Fluid Mechanics (91), Probability and Statistics (91), Engineering Material (92)</div>
+      <div class="edu-rank">Last two years Ranking: 3 / 100</div>
+    </div>
+    <div class="edu-item">
+      <div class="edu-date">Apr 2024 – Sep 2024</div>
+      <div class="edu-degree">Exchange Semester in Mechanical Engineering</div>
+      <div class="edu-school">Karlsruhe Institute of Technology · Karlsruhe, Germany</div>
+      <div class="edu-detail">Heat and Mass Transfer (A+)</div>
+    </div>
+  </div>
+
+  <div class="resume-section">
+    <h3>Internship</h3>
+    <div class="exp-item">
+      <div class="exp-date">Apr 2025 – Sep 2025</div>
+      <div class="exp-role">High Voltage and Low Voltage Hardware Test Intern</div>
+      <div class="exp-where">Tesla · Shanghai, China</div>
+      <div class="exp-detail">
+        <ul>
+          <li>Supported high voltage hardware reliability test, provided data for hardware design change and implementing failure analysis.</li>
+          <li>Developed script implementing multi drive units reliability thermal testing, automatically uploading data to MySQL.</li>
+          <li>Supported low voltage battery reliability test; independent test development provided data for battery management board design change.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="resume-section">
+    <h3>Technical Skills</h3>
+    <div class="skills-row"><span>Programming</span> — Python, C++, HTML, MATLAB, Arduino</div>
+    <div class="skills-row"><span>CAD / Simulation</span> — CATIA, SolidWorks, Creo, Fusion, UGNX, Ansys, Comsol</div>
+    <div class="skills-row"><span>Tools</span> — LabVIEW, MySQL, Git, PCAN, Origin</div>
+  </div>
+
+  <div class="resume-section">
+    <h3>Contact</h3>
+    <div class="skills-row">Email — <a href="mailto:your@email.com" style="color:#1a73e8">your@email.com</a></div>
+    <div class="skills-row">Phone — (650) 444-8004</div>
+    <div class="skills-row">Location — Stanford, CA</div>
+  </div>
+
+</div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('p-' + id).classList.add('active');
+  const navEl = document.getElementById('n-' + id);
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>
