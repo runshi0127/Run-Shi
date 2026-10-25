@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>Saxaul Seedling Auto-Planting Robot | Run Shi</title>
+
+    <meta name="author" content="Run Shi">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheet.css">
+
+  </head>
+
+  <body>
+    <div class="pp">
+      <p class="pp-back"><a href="../index.html">&larr; Back to home</a></p>
+
+      <!-- ============ Title ============ -->
+      <div class="pp-hero">
+        <h1 class="pp-title">Saxaul Seedling Auto-Planting Robot</h1>
+        <p class="pp-authors">Autonomous desert reforestation vehicle with a hollow-drill seedling mechanism</p>
+        <p class="pp-affil">SJTU Student Innovation Practice Program (IPP28037) &middot; Team Lead &middot; Oct. 2023 &ndash; Sep. 2024</p>
+        <p class="pp-affil">Shanghai, China &middot; Tengger Desert, Gansu</p>
+      </div>
+
+      <ul class="pp-nav">
+        <li><a href="#concept">Concept</a></li>
+        <li><a href="#design">Design</a></li>
+        <li><a href="#result">Field test &amp; result</a></li>
+      </ul>
+
+      <figure class="pp-figure">
+        <video src="../Project2whole.mp4" autoplay loop muted playsinline></video>
+        <figcaption>The full planting cycle</figcaption>
+      </figure>
+
+      <hr class="pp-sep">
+
+      <section id="concept" class="pp-section">
+        <h2 class="pp-section-title">Concept</h2>
+        <p class="pp-question">How can we replant a desert without people on site?</p>
+        <p>
+          Saxaul trees are critical for combating desertification in northwestern China &mdash; they anchor soil and support the
+          cultivation of Cistanche, a high-value medicinal crop. However, harsh desert conditions (sandstorms, wild rabbits,
+          gerbil damage) result in low survival rates. This project designed an autonomous <strong>solar-powered trolley</strong>
+          that patrols a planting base, replants seedlings, and returns to charge automatically &mdash; enabling unattended,
+          scalable reforestation.
+        </p>
+      </section>
+
+      <hr class="pp-sep">
+
+      <section id="design" class="pp-section">
+        <h2 class="pp-section-title">Design</h2>
+        <p>The vehicle integrates three core subsystems on a sand-ready chassis:</p>
+        <ul>
+          <li><strong>Seedling warehouse</strong> &mdash; a roller mechanism (stepper motor, 1:380 gear ratio) dispenses one seedling per cycle from a dual-sided acrylic tray.</li>
+          <li><strong>Transport mechanism</strong> &mdash; a linkage-driven cylindrical tube with a gear-rack opening device and internal spring orients and delivers the seedling upright to the drill.</li>
+          <li><strong>Hollow drill</strong> (the core innovation) &mdash; a T-thread (10&nbsp;mm pitch) alloy screw rotates into the sand while an internal fish-line/steel-wire mechanism opens the drill tip at depth to deposit the seedling, then retracts to close.</li>
+          <li><strong>Chassis</strong> &mdash; four independently driven soft rubber wheels with Ackermann steering adapted for loose sand.</li>
+        </ul>
+        <figure class="pp-figure">
+          <img src="../hollow.jpg" alt="Hollow drill opening mechanism diagram" loading="lazy">
+          <figcaption>Hollow-drill tip opening mechanism, which works like a pulley system</figcaption>
+        </figure>
+      </section>
+
+      <hr class="pp-sep">
+
+      <section id="result" class="pp-section">
+        <h2 class="pp-section-title">Field test &amp; result</h2>
+        <p>
+          We field-tested the prototype in the Tengger Desert in Gansu during winter break. We identified and resolved drill
+          penetration issues by adding a ball screw, widening the thread profile, and upgrading to a higher-torque stepper motor.
+          FEA in SolidWorks SimulationXpress confirmed the drill&rsquo;s structural safety factor exceeded 1.19&times;10<sup>6</sup>.
+          The final prototype completed the full planting cycle: seedling dispensing, upright transport, drill descent, tip
+          opening, seedling deposit, and drill retraction.
+        </p>
+        <div class="pp-grid-3">
+          <figure class="pp-figure"><video src="../Project2_1.mp4" autoplay loop muted playsinline></video></figure>
+          <figure class="pp-figure"><video src="../Project2_2.mp4" autoplay loop muted playsinline></video></figure>
+          <figure class="pp-figure"><video src="../Project2.mp4" autoplay loop muted playsinline></video></figure>
+        </div>
+        <p class="pp-award">&#127942; Top 1% Investment Award &mdash; Tencent &lsquo;Light&rsquo; Technology Charity Creation Camp</p>
+      </section>
+
+    </div>
+  </body>
+</html>

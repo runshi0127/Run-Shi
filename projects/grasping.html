@@ -1,0 +1,308 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>Vision-Guided Grasping | Run Shi</title>
+
+    <meta name="author" content="Run Shi">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheet.css">
+
+  </head>
+
+  <body>
+    <!-- 图片都在 images/projects/grasping/，同名替换即可 -->
+    <div class="pp">
+
+      <p class="pp-back"><a href="../index.html">&larr; Back to home</a></p>
+
+      <!-- ============ 标题 ============ -->
+      <header class="pp-hero">
+        <h1 class="pp-title">TOM and Jerry: Vision-Guided Robotic Tracking and Grasping</h1>
+        <p class="pp-authors">Liwen Fan, Serena Liu, Run Shi, Keshav Narang</p>
+        <p class="pp-note">Names are listed in no particular order; all members contributed equally.</p>
+        <p class="pp-affil">Stanford CS225A: Experimental Robotics &middot; Spring 2026</p>
+        <p class="pp-links">
+          <a href="#demo">Demo Video</a> /
+          <a href="https://github.com/liuyuhan-serena/CS225A-Project">Code (GitHub)</a>
+        </p>
+      </header>
+
+      <!-- ============ 目录 ============ -->
+      <ul class="pp-nav">
+        <li><a href="#why">Why chase a mouse?</a></li>
+        <li><a href="#sim">Simulate first</a></li>
+        <li><a href="#perception">Pixels to world frame</a></li>
+        <li><a href="#control">One controller</a></li>
+        <li><a href="#fsm">Six-state machine</a></li>
+        <li><a href="#demo">Demo video</a></li>
+        <li><a href="#next">What&rsquo;s next</a></li>
+        <li><a href="#team">Team</a></li>
+      </ul>
+
+      <!-- ============ 一句话总结 ============ -->
+      <div class="pp-thesis">
+        <p>Catching a moving target is hard when the camera <em>moves with the arm</em> &mdash; every robot motion changes what the robot sees.</p>
+        <p><span class="pp-key">The key idea?</span> Keep the layers separate: perception publishes world-frame keypoints, a 100&nbsp;Hz state machine turns them into Cartesian references, and a single operational-space controller tracks those references smoothly.</p>
+      </div>
+
+      <figure class="pp-figure">
+        <img src="../images/projects/grasping/newfencewhole.gif" alt="Full demo: the arm searching, tracking, and catching the mouse toy inside the fenced workspace" style="width:100%">
+        <figcaption>Full demo: the arm searches for, tracks, and catches the remote-controlled mouse inside the fenced workspace</figcaption>
+      </figure>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 1. Why ============ -->
+      <section id="why" class="pp-section">
+        <h2 class="pp-section-title">Why chase a mouse?</h2>
+        <p class="pp-question">What does it take for a robot to catch something that keeps moving?</p>
+        <p>
+          Most manipulation assumes the object sits still; real targets don&rsquo;t. A human-driven
+          <strong>remote-controlled mouse</strong> can stop, dart, or reverse at any moment, forcing the robot to
+          re-perceive and react in real time &mdash; the same skills behind dynamic pick-and-place and human&ndash;robot
+          handover.
+        </p>
+        <div class="pp-result-row">
+          <span class="pp-item"><span class="pp-k">Arm</span><span class="pp-v">Flexiv Rizon4S, 7-DoF</span></span>
+          <span class="pp-item"><span class="pp-k">Camera</span><span class="pp-v">RealSense D405, eye-in-hand</span></span>
+          <span class="pp-item"><span class="pp-k">Perception</span><span class="pp-v">YOLOv11-pose</span></span>
+          <span class="pp-item"><span class="pp-k">Middleware</span><span class="pp-v">Redis</span></span>
+        </div>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 2. Simulation ============ -->
+      <section id="sim" class="pp-section">
+        <h2 class="pp-section-title">Simulate before touching the robot</h2>
+        <p class="pp-question">How do we develop the controller before the vision stack is ready?</p>
+        <p>
+          The simulation in OpenSai/SAI reproduces the real workcell: the Rizon4S fixed at the origin next to a
+          1.0&nbsp;&times;&nbsp;1.3&nbsp;m tabletop. The mouse is a small red box whose pose follows a bounded random walk,
+          moving for 2&nbsp;s and pausing for 5&nbsp;s so the arm has time to converge overhead and attempt a grasp &mdash;
+          just like the intermittent motion of the real RC toy. An eye-in-hand camera sits on link&nbsp;7 with the same
+          extrinsic offset as the physical D405 mount, and physics runs at 2&nbsp;kHz.
+        </p>
+        <p>
+          To decouple from the perception team, the simulation publishes a <strong>&ldquo;fake CV&rdquo; signal over the
+          same Redis keys</strong> as the real pipeline: the ground-truth target position with 5&nbsp;mm noise and a
+          field-of-view check. The state machine and controller were exercised end-to-end before any hardware was
+          involved.
+        </p>
+        <!-- 两张图同一行、等高：flex 值 = 各自宽高比（530:370） -->
+        <div class="pp-row">
+          <figure class="pp-figure" style="flex:530">
+            <img src="../images/projects/grasping/sim-catch.gif" alt="Simulated catch" loading="lazy">
+            <figcaption>Descending to catch</figcaption>
+          </figure>
+          <figure class="pp-figure" style="flex:370">
+            <img src="../images/projects/grasping/following.gif" alt="Simulated arm following the target" loading="lazy">
+            <figcaption>Following the moving target</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 3. Perception ============ -->
+      <section id="perception" class="pp-section">
+        <h2 class="pp-section-title">From pixels to the world frame</h2>
+        <p class="pp-question">Where is the mouse, when the camera itself is moving?</p>
+        <p>
+          Each 640&nbsp;&times;&nbsp;480 color frame goes through YOLOv11-pose; only the highest-confidence detection above
+          threshold is kept. Instead of trusting a single depth pixel, we take the <strong>median valid depth</strong>
+          in a small neighborhood around each keypoint, then deproject it with the camera intrinsics.
+        </p>
+        <p>
+          Because the camera rides on the end effector, every point is re-expressed in the world frame each cycle using
+          the fixed camera mount and the live link-7 pose:
+        </p>
+        <p class="pp-equation"><sup>World</sup><strong>p</strong> = <em>T</em><sup>World</sup><sub>link7</sub> &middot; <em>T</em><sup>link7</sup><sub>Cam</sub> &middot; <sup>Cam</sup><strong>p</strong></p>
+        <p>
+          The pipeline publishes the mouse center, tail base, center-to-tail vector, and detection confidence &mdash; all
+          in one consistent world frame.
+        </p>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 4. Control ============ -->
+      <section id="control" class="pp-section">
+        <h2 class="pp-section-title">One controller, many references</h2>
+        <p class="pp-question">How does the arm move smoothly toward a target that keeps jumping?</p>
+        <p>
+          A single operational-space controller runs as its own process. The state machine never reconfigures it &mdash;
+          it only updates the pose reference. Position and orientation form one 6-DoF task on a control point 0.15&nbsp;m
+          down the tool axis:
+        </p>
+        <p class="pp-equation"><strong>F</strong> = &Lambda;(<strong>q</strong>)[&minus;<em>K<sub>p</sub></em>(<strong>x</strong> &minus; <strong>x</strong><sub>ref</sub>) &minus; <em>K<sub>v</sub></em><strong>&#7819;</strong>], &nbsp;&nbsp; &Lambda;(<strong>q</strong>) = (<em>J M</em><sup>&minus;1</sup><em>J</em><sup>&#8868;</sup>)<sup>&minus;1</sup></p>
+        <p>
+          &Lambda; decouples the task dynamics, so the same gains behave the same in every arm configuration. With 7 joints
+          against a 6-DoF task, the redundant DoF is handled by a joint-space PD task projected into the null space,
+          pulling the arm toward its start-up posture without disturbing the end effector:
+        </p>
+        <p class="pp-equation"><strong>&Gamma;</strong> = <em>J</em><sup>&#8868;</sup><strong>F</strong> + <em>N</em><sup>&#8868;</sup><strong>&Gamma;</strong><sub>joint</sub> + <strong>g</strong>(<strong>q</strong>), &nbsp;&nbsp; <em>N</em> = <em>I</em> &minus; <em>J</em><sup>&#8868;</sup><em>J&#772;</em><sup>&#8868;</sup></p>
+        <p>
+          Every goal passes through <strong>online trajectory generation</strong> that caps velocity and acceleration, so
+          state transitions and noisy perception updates never become jerky motions. The velocity cap is lowered during
+          the final grasp descent for a slow, safe approach.
+        </p>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 5. FSM ============ -->
+      <section id="fsm" class="pp-section">
+        <h2 class="pp-section-title">A six-state machine</h2>
+        <p class="pp-question">How do search, track, and grasp fit together?</p>
+        <p>
+          A 100&nbsp;Hz finite-state machine sits between perception and control, translating keypoints into the
+          references the controller tracks.
+        </p>
+        <figure class="pp-figure">
+          <img src="../images/projects/grasping/state-machine.png" alt="Finite state machine: Init, Search, Following, Pre-grasp, Grasp, Lift, Place" loading="lazy" style="max-height:none">
+          <figcaption>State transitions, from system start through search, tracking, grasping, and placing</figcaption>
+        </figure>
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <thead>
+              <tr><th>State</th><th>Desired position</th><th>Orientation</th><th>Gripper</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>Search</strong></td><td>Sweep between two endpoints at 65&nbsp;cm</td><td>Locked downward at endpoints</td><td>Open</td></tr>
+              <tr><td><strong>Track</strong></td><td>Target center + 30&nbsp;cm hover (EMA-filtered)</td><td>Look-at, camera x-axis kept continuous</td><td>Open</td></tr>
+              <tr><td><strong>Pre-grasp</strong></td><td>Tail-base xy at hover height</td><td>Locked downward</td><td>Open</td></tr>
+              <tr><td><strong>Grasp</strong></td><td>Frozen tail-base xy, descend to grasp height</td><td>Yawed &perp; to mouse body axis</td><td>Close at 60&nbsp;N</td></tr>
+              <tr><td><strong>Lift</strong></td><td>Current xy, z + 25&nbsp;cm</td><td>Hold grasp orientation</td><td>Hold</td></tr>
+              <tr><td><strong>Place</strong></td><td>[0.75, &minus;0.45]&nbsp;m, then descend to 8&nbsp;cm</td><td>Hold grasp orientation</td><td>Open at target</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          A few guards make it robust: tracking only starts when the target is inside the central 80% of the image;
+          pre-grasp waits until the mouse stays within 10&nbsp;cm of an anchor for 2.0&nbsp;s; and the grasp yaw comes from the
+          filtered center-to-tail vector so the jaws close across the body.
+        </p>
+        <div class="pp-grid-4">
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/real-search.gif" alt="Search on the real arm" loading="lazy">
+            <figcaption>Search</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/real-track.gif" alt="Tracking on the real arm" loading="lazy">
+            <figcaption>Track</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/real-pregrasp.gif" alt="Pre-grasp and grasp on the real arm" loading="lazy">
+            <figcaption>Pre-grasp &rarr; grasp</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/real-whole.gif" alt="Full cycle on the real arm" loading="lazy">
+            <figcaption>Full cycle</figcaption>
+          </figure>
+        </div>
+
+        <h3 class="pp-subtitle">Why only the central 80% of the frame?</h3>
+        <!-- 左文右图 -->
+        <div class="pp-split pp-split-wide-media">
+          <div>
+            <p>
+              The mouse often first appears at the edges of the
+              camera view, where its depth estimate is least reliable and following it would demand an abrupt
+              re-orientation. If any detection could trigger tracking, the arm would lunge toward the edge, lose the
+              mouse as it slipped out of view, fall back to searching, and spot it again moments later &mdash; flipping
+              between searching, tracking, and pre-grasp so quickly that it jitters in place and never settles long
+              enough to make a catch.
+            </p>
+            <p>
+              Requiring the keypoint to sit inside the central 80% of the image before tracking begins removes that
+              chatter: the robot only commits once the target is well in view, and then keeps it centered.
+            </p>
+          </div>
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/cv-80-detect-window.gif" alt="Detection window: the mouse is tracked once it enters the central region of the frame" loading="lazy">
+            <figcaption>Detection stream: tracking begins once the mouse enters the central 80% of the frame</figcaption>
+          </figure>
+        </div>
+
+
+        <h3 class="pp-subtitle">Why grasp the tail, not the body?</h3>
+        <p>
+          Our first grasps aimed at the mouse&rsquo;s body. It is a rounded shell covered in soft fur: the jaws sink into the
+          fur, there is no edge for the fingers to close on, and the toy squeezes out of the gripper as soon as it lifts.
+          The <strong>tail base</strong> is a firm, narrow feature the jaws can close around securely, so PRE-GRASP
+          retargets from the center keypoint to the tail-base keypoint before descending.
+        </p>
+        <p>
+          The switch came with two adjustments. The tail-base keypoint is noisier than the center, so it is filtered more
+          heavily (EMA &alpha; = 0.1). And because the tail is too thin for a gripper-width check, LIFT judges success by
+          <strong>grip force</strong> instead: above 2.5&nbsp;N means the mouse is held; below it, the gripper reopens and the
+          robot goes back to searching.
+        </p>
+        <div class="pp-grid-3">
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/hairRobo.gif" alt="Gripper closing on the furry body" loading="lazy">
+            <figcaption>Aiming for the body: the jaws close on fur</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/hairrobo-fail.gif" alt="The toy slipping out of the gripper" loading="lazy">
+            <figcaption>The toy slips out as the arm lifts</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/grasping/tail-graspspeed1x.gif" alt="Successful grasp on the tail base" loading="lazy">
+            <figcaption>Grasping the tail base: a secure hold</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ Demo video ============ -->
+      <section id="demo" class="pp-section">
+        <h2 class="pp-section-title">Demo video</h2>
+        <p class="pp-question">The full system, end to end.</p>
+        <figure class="pp-figure">
+          <div class="pp-video-wide">
+            <iframe src="https://www.youtube.com/embed/fhD53k_bAAU" title="TOM and Jerry demo video" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+          <figcaption>
+            <a href="https://www.youtube.com/watch?v=fhD53k_bAAU">Watch on YouTube</a> &middot;
+            <a href="https://github.com/liuyuhan-serena/CS225A-Project">Source code on GitHub</a>
+          </figcaption>
+        </figure>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 7. Next ============ -->
+      <section id="next" class="pp-section">
+        <h2 class="pp-section-title">What&rsquo;s next</h2>
+        <p class="pp-question">How could the system anticipate instead of react?</p>
+        <ul>
+          <li><strong>Predictive tracking</strong> (e.g. Kalman filtering) to reduce lag during fast target motion.</li>
+          <li><strong>Adaptive grasping</strong>: estimate the full object pose and generate grasp candidates, instead of a fixed tail-base point.</li>
+          <li><strong>Generalization</strong>: train on multiple object categories to turn the system into a general dynamic pick-and-sort platform.</li>
+        </ul>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 8. Team ============ -->
+      <section id="team" class="pp-section">
+        <h2 class="pp-section-title">Team</h2>
+        <div class="pp-result-row">
+          <span class="pp-item"><span class="pp-k">Simulation &amp; Control</span><span class="pp-v">Liwen Fan, Run Shi</span></span>
+          <span class="pp-item"><span class="pp-k">Perception</span><span class="pp-v">Serena Liu, Keshav Narang</span></span>
+        </div>
+        <p class="pp-note">Names are listed in no particular order; all members contributed equally.</p>
+        <p class="pp-caption-text">
+          We thank Enzo Andreacchio and William Chong for their support debugging hardware issues, and instructors
+          Oussama Khatib and Xiyang Yeh for their teaching and guidance.
+        </p>
+      </section>
+
+    </div>
+  </body>
+</html>

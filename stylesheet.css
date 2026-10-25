@@ -1,0 +1,781 @@
+a {
+  color: #1772d0;
+  text-decoration: none;
+}
+
+a:focus,
+a:hover {
+  color: #f09228;
+  text-decoration: none;
+}
+
+body,
+td,
+th,
+tr,
+p,
+a {
+  font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 14px;
+  line-height: 155%;
+}
+
+strong {
+  font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 14px;
+}
+
+h2 {
+  margin: 0;
+  font-weight: normal;
+  font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 18px;
+}
+
+.papertitle {
+  font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.name {
+  padding-top: 20px;
+  margin: 0;
+  font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+  font-size: 32px;
+}
+
+.one {
+  width: 160px;
+  height: 160px;
+  position: relative;
+}
+
+.two {
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  transition: opacity .2s ease-in-out;
+  -moz-transition: opacity .2s ease-in-out;
+  -webkit-transition: opacity .2s ease-in-out;
+}
+
+.fade {
+  transition: opacity .2s ease-in-out;
+  -moz-transition: opacity .2s ease-in-out;
+  -webkit-transition: opacity .2s ease-in-out;
+}
+
+span.highlight {
+  background-color: #ffffd0;
+}
+
+
+.compact-list {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.compact-list li {
+  margin-bottom: 0.32rem;
+}
+
+/* ---- Project cards ---- */
+#projects tr {
+  position: relative;
+  display: grid;
+  grid-template-columns: 285px 1fr;
+  align-items: start;
+  margin: 0 16px 16px 16px;
+  border: 1px solid #e7e7e7;
+  border-radius: 8px;
+  background: #fff;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+#projects tr:hover {
+  transform: translateY(-2px);
+  border-color: #d0d0d0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+#projects td {
+  display: block;
+}
+
+#projects img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #f2f2f2;
+}
+
+/* 让整张卡片都可以点击 */
+#projects .card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* 卡片里的其他链接（Project Page / Demo Video）浮在整卡链接之上，可以单独点 */
+#projects td a:not(.card-link) {
+  position: relative;
+  z-index: 1;
+}
+
+#projects .card-links {
+  margin-bottom: 0;
+}
+
+@media (max-width: 760px) {
+  #projects tr {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- Internship 条目：左右两端对齐，和 CV 一样 ---- */
+.entry {
+  margin-top: 12px;
+}
+
+.entry-row {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 12px;
+}
+
+.entry ul,
+.patent-list {
+  margin-top: 4px;
+  margin-bottom: 0;
+  padding-left: 20px;
+}
+
+.patent-list li {
+  margin-bottom: 6px;
+}
+
+/* 全站正文两端对齐、统一行距（姓名、邮箱和链接行用行内样式保持居中） */
+p,
+li {
+  text-align: justify;
+  line-height: 155%;
+}
+
+/* ================= 项目详情页（参考 FBG Whisker 页的版式） ================= */
+.pp {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
+}
+
+.pp-back {
+  margin: 0 0 8px;
+}
+
+.pp-hero {
+  text-align: center;
+  padding: 16px 0 8px;
+}
+
+.pp-title {
+  font-family: Palatino, 'Palatino Linotype', 'Book Antiqua', serif;
+  font-weight: normal;
+  font-size: 30px;
+  line-height: 1.25;
+  margin: 0 0 14px;
+}
+
+.pp-hero p,
+.pp-figure figcaption,
+.pp-question,
+.pp-caption-text,
+.pp-equation,
+.pp-thesis p {
+  text-align: center;
+}
+
+.pp-authors {
+  font-size: 16px;
+  margin: 0 0 4px;
+}
+
+.pp-affil {
+  color: #555;
+  margin: 0 0 10px;
+}
+
+.pp-nav {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 18px;
+  padding: 12px 0;
+  margin: 16px 0 24px;
+  border-top: 1px solid #e7e7e7;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.pp-nav li {
+  text-align: center;
+}
+
+.pp-thesis {
+  margin: 0 auto 20px;
+  max-width: 680px;
+}
+
+.pp-thesis p {
+  font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.pp-key {
+  font-weight: 700;
+}
+
+.pp-sep {
+  border: 0;
+  border-top: 1px solid #e7e7e7;
+  margin: 0;
+}
+
+.pp-section {
+  padding: 32px 0;
+}
+
+.pp-section-title {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.pp-question {
+  font-style: italic;
+  font-size: 17px;
+  margin: 0 0 16px;
+}
+
+.pp-equation {
+  font-size: 18px;
+}
+
+.pp-figure {
+  margin: 20px 0;
+}
+
+.pp-figure img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  max-height: 480px;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: #f2f2f2;
+}
+
+.pp-figure figcaption {
+  font-size: 13px;
+  color: #666;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.pp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.pp-grid .pp-figure {
+  margin: 12px 0;
+}
+
+/* 竖屏视频（YouTube Shorts） */
+.pp-video {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  aspect-ratio: 9 / 16;
+}
+
+.pp-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 4px;
+}
+
+.pp-result-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 24px;
+  margin: 16px 0;
+}
+
+.pp-item {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.pp-k {
+  color: #666;
+}
+
+.pp-v {
+  font-weight: 700;
+}
+
+.pp-result-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px auto;
+  max-width: 460px;
+}
+
+.pp-result-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 4px 0;
+  border-bottom: 1px dotted #ddd;
+}
+
+.pp-caption-text {
+  font-style: italic;
+  color: #666;
+}
+
+@media (max-width: 640px) {
+  .pp-grid {
+    grid-template-columns: 1fr;
+  }
+  .pp-title {
+    font-size: 24px;
+  }
+}
+
+/* 详情页：我的贡献框、三列图、表格、横屏视频 */
+.pp-role {
+  margin: 0 auto 24px;
+  max-width: 680px;
+  padding: 12px 18px;
+  border-left: 3px solid #1772d0;
+  background: #f6f8fb;
+  border-radius: 4px;
+}
+
+.pp-role p {
+  margin: 4px 0;
+}
+
+.pp-role ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.pp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.pp-grid-3 .pp-figure {
+  margin: 12px 0;
+}
+
+.pp-table-wrap {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.pp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pp-table th,
+.pp-table td {
+  text-align: left;
+  vertical-align: top;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e7e7e7;
+  font-size: 13px;
+}
+
+.pp-table th {
+  border-bottom: 2px solid #ccc;
+}
+
+.pp-video-wide {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.pp-video-wide iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 4px;
+}
+
+@media (max-width: 640px) {
+  .pp-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 详情页里加粗文字跟随所在行字号（否则会被上面 strong 的 14px 覆盖） */
+.pp strong {
+  font-size: inherit;
+}
+
+/* 作者顺序说明小字 */
+.pp-note {
+  font-size: 12px;
+  color: #888;
+  font-style: italic;
+  margin: 0 0 10px;
+  text-align: center;
+}
+
+/* 同一行等高的图：每个 figure 的 flex 值设成图片宽高比 */
+.pp-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.pp-row .pp-figure {
+  margin: 12px 0;
+  min-width: 0;
+}
+
+.pp-row .pp-figure img {
+  width: 100%;
+  max-height: none;
+}
+
+@media (max-width: 640px) {
+  .pp-row {
+    flex-direction: column;
+  }
+}
+
+/* 左文右图 */
+.pp-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.pp-split .pp-figure img {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .pp-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 左文右图：文字占宽，图片窄一些（低分辨率 GIF 放小才不糊） */
+.pp-split-wide-media {
+  grid-template-columns: 5fr 2fr;
+}
+
+/* 节内小标题 */
+.pp-subtitle {
+  font-size: 18px;
+  font-weight: normal;
+  margin: 32px 0 8px;
+}
+
+@media (max-width: 640px) {
+  .pp-split-wide-media {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 四张竖屏图一行 */
+.pp-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.pp-grid-4 .pp-figure {
+  margin: 12px 0;
+}
+
+@media (max-width: 640px) {
+  .pp-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 设计方案卡片：草图 + 标签 + 优缺点 */
+.pp-concept {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #e7e7e7;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.pp-concept img {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: contain;
+  margin-bottom: 10px;
+}
+
+.pp-concept figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.pp-concept strong {
+  font-size: 15px;
+}
+
+.pp-tag {
+  align-self: flex-start;
+  font-size: 11px;
+  color: #666;
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+.pp-tag-kept {
+  color: #fff;
+  background: #1772d0;
+}
+
+.pp-pro {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.pp-con {
+  color: #c62828;
+  font-weight: 700;
+}
+
+/* 详情页顶部背景图标题 */
+.pp-banner {
+  position: relative;
+  background-size: cover;
+  background-color: #333;
+  color: #fff;
+}
+
+.pp-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.6));
+}
+
+.pp-banner-inner {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px 72px;
+  text-align: center;
+}
+
+.pp-banner .pp-back {
+  text-align: left;
+  margin-bottom: 64px;
+}
+
+.pp-banner a,
+.pp-banner .pp-affil,
+.pp-banner .pp-note {
+  color: #fff;
+}
+
+.pp-banner .pp-title {
+  font-size: 36px;
+  margin-top: 0;
+}
+
+.pp-banner p {
+  text-align: center;
+}
+
+.pp-banner-inner {
+  padding-bottom: 180px;
+}
+
+/* 小节下的小小标题 & 提问 */
+.pp-subtitle {
+  font-size: 20px;
+  margin-top: 40px;
+}
+
+.pp-subquestion {
+  font-style: italic;
+  color: #555;
+  margin: 0 0 12px;
+  text-align: left;
+}
+
+.pp-subsubtitle {
+  font-size: 16px;
+  font-weight: normal;
+  margin: 24px 0 8px;
+}
+
+/* 同一行图片高度不同时，图片题注顶端对齐在同一高度（subgrid：图片一行、题注一行） */
+.pp-grid > .pp-figure,
+.pp-grid-3 > .pp-figure,
+.pp-grid-4 > .pp-figure {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  row-gap: 8px;
+}
+
+.pp-grid > .pp-figure > img,
+.pp-grid-3 > .pp-figure > img,
+.pp-grid-4 > .pp-figure > img,
+.pp-grid > .pp-figure > .pp-video,
+.pp-grid > .pp-figure > .pp-video-wide {
+  align-self: center;
+}
+
+.pp-grid > .pp-figure > figcaption,
+.pp-grid-3 > .pp-figure > figcaption,
+.pp-grid-4 > .pp-figure > figcaption {
+  margin-top: 0;
+}
+
+/* 背景图标题：文字整体往下放 */
+.pp-banner-tall .pp-back {
+  margin-bottom: 150px;
+}
+
+.pp-banner-tall .pp-banner-inner {
+  padding-bottom: 120px;
+}
+
+/* 方案卡片里个别草图缩小显示（卡片大小不变） */
+.pp-concept img.pp-concept-sm {
+  padding: 18px 36px;
+  box-sizing: border-box;
+}
+
+/* 同一行的方案卡片等高 */
+.pp-grid,
+.pp-grid-3,
+.pp-grid-4 {
+  align-items: stretch;
+}
+
+/* ================= Additions for this site ================= */
+body {
+  margin: 0;
+}
+
+table.page {
+  width: 100%;
+  max-width: 800px;
+  border: 0;
+  border-spacing: 0;
+  border-collapse: separate;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+table.block {
+  width: 100%;
+  border: 0;
+  border-spacing: 0;
+  border-collapse: separate;
+}
+
+td.section {
+  padding: 16px;
+  width: 100%;
+  vertical-align: middle;
+}
+
+.portrait {
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+@media (max-width: 600px) {
+  .intro tr {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .intro td {
+    width: auto !important;
+  }
+  .intro .portrait {
+    max-width: 200px;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+#projects td {
+  padding: 20px;
+  vertical-align: top;
+}
+
+#projects video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #f2f2f2;
+}
+
+.award {
+  color: #b26a00;
+}
+
+.pp-figure video {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: #f2f2f2;
+}
+
+.pp-award {
+  text-align: center;
+  font-weight: 700;
+  color: #b26a00;
+}

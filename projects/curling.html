@@ -1,0 +1,356 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <title>Joy of Curling | Run Shi</title>
+
+    <meta name="author" content="Run Shi">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../stylesheet.css">
+
+  </head>
+
+  <body>
+    <!-- 图片都在 images/projects/curling/，同名替换即可 -->
+
+    <!-- ============ 标题（背景图） ============ -->
+    <header class="pp-banner pp-banner-tall" style="background-image:url('../images/projects/curling/hero.jpg');background-position:center 62%">
+      <div class="pp-banner-inner">
+        <p class="pp-back"><a href="../index.html">&larr; Back to home</a></p>
+        <h1 class="pp-title">Autonomous Robotics &mdash; Joy of Curling</h1>
+        <p class="pp-authors">Chia-Ling Weng, Liwen Fan, Run Shi, Maanya Govil</p>
+        <p class="pp-note">Names are listed in no particular order; all members contributed equally.</p>
+        <p class="pp-affil">Stanford ME210: Introduction to Mechatronics &middot; Winter 2026</p>
+      </div>
+    </header>
+
+    <div class="pp">
+
+      <!-- ============ 目录 ============ -->
+      <ul class="pp-nav">
+        <li><a href="#challenge">The challenge</a></li>
+        <li><a href="#strategy">Finding the way</a></li>
+        <li><a href="#design">System design</a></li>
+        <li><a href="#layers">Why two levels?</a></li>
+        <li><a href="#storage">Storing the pucks</a></li>
+        <li><a href="#launch">Launching the pucks</a></li>
+        <li><a href="#slide">The fastest slide</a></li>
+        <li><a href="#sensing">Sensing the tape</a></li>
+        <li><a href="#electrical">Electronics</a></li>
+        <li><a href="#results">Results &amp; demo</a></li>
+      </ul>
+
+      <!-- ============ 一句话总结 ============ -->
+      <div class="pp-thesis">
+        <p>From a random start, the robot must <em>orient itself, follow tape to the hog line, launch three pucks, and come back to reload</em> &mdash; all within two minutes.</p>
+        <p><span class="pp-key">The key idea?</span> Let gravity do the launching: store the pucks high on a second level and release them down a brachistochrone slide, so a single servo handles both storage and launch.</p>
+      </div>
+
+      <figure class="pp-figure">
+        <img src="../images/projects/curling/competition.jpg" alt="The robot on the arena during the final competition" style="width:100%;max-height:none;aspect-ratio:2.4 / 1;object-fit:cover;object-position:center 60%">
+        <figcaption>Our robot on the arena during the final competition</figcaption>
+      </figure>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 1. Strategy ============ -->
+      <section id="challenge" class="pp-section">
+        <h2 class="pp-section-title">The challenge</h2>
+        <p class="pp-question">What does the robot have to do, and with what?</p>
+        <p>
+          Two robots compete head-to-head on a curling arena. Ours starts from a random orientation in the waiting area,
+          must find its heading, follow the black tape toward the scoring rings, launch 8-oz pucks before the hog line,
+          and return to base to reload &mdash; with no remote control and only limited navigation cues.
+        </p>
+        <div class="pp-result-row">
+          <span class="pp-item"><span class="pp-k">Footprint</span><span class="pp-v">13 &times; 13 in</span></span>
+          <span class="pp-item"><span class="pp-k">Time limit</span><span class="pp-v">2 min</span></span>
+          <span class="pp-item"><span class="pp-k">Pucks per run</span><span class="pp-v">3 &times; 8 oz</span></span>
+        </div>
+        <figure class="pp-figure">
+          <img src="../images/projects/curling/arena.png" alt="Arena top and side views with dimensions" style="width:100%;max-height:none">
+          <figcaption>The arena: waiting areas A and B, the black tape, the hog lines and scoring rings, and the IR beacon</figcaption>
+        </figure>
+      </section>
+
+      <hr class="pp-sep">
+
+      <section id="strategy" class="pp-section">
+        <h2 class="pp-section-title">Finding the way</h2>
+        <p class="pp-question">How does the robot get from the waiting area to the hog line and back?</p>
+        <p>
+          With only the walls and the black tape as cues, we planned a route the robot can follow reliably every run.
+          Everything else in the design follows from it:
+        </p>
+        <figure class="pp-figure">
+          <img src="../images/projects/curling/navigation.png" alt="Arena top view showing our navigation route" style="width:100%;max-height:none">
+          <figcaption>Our navigation strategy: exit the waiting area, turn onto the center tape, and follow it to the hog line to shoot</figcaption>
+        </figure>
+        <ol>
+          <li><strong>Orient</strong> &mdash; rotate until the left and rear ultrasonic pairs read equal distances, so the robot is square to the walls.</li>
+          <li><strong>Find the tape</strong> &mdash; drive forward until the rear IR sensor crosses the tape, then turn right until the front-right IR finds the center line.</li>
+          <li><strong>Follow &amp; shoot</strong> &mdash; the three middle IR sensors steer along the line; when both front IR sensors see the hog line, the servo releases all three pucks.</li>
+          <li><strong>Return &amp; reload</strong> &mdash; reverse along the line until the rear ultrasonic reads under 10&nbsp;cm, turn to face the start zone, and wait to reload.</li>
+        </ol>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 2. System design ============ -->
+      <section id="design" class="pp-section">
+        <h2 class="pp-section-title">System design</h2>
+        <p class="pp-question">How do we turn the route into a working robot?</p>
+        <p>
+          The route above breaks the robot into four subsystems, each owning one part of the task:
+        </p>
+        <ul>
+          <li><strong>Locomotion</strong> &mdash; a four-wheel omni-drive that moves forward, sideways, and rotates in place to orient, follow the tape, and return.</li>
+          <li><strong>Sensing &amp; navigation</strong> &mdash; ultrasonic sensors find the heading from the walls; IR sensors follow the tape and trigger each state change.</li>
+          <li><strong>Puck storage</strong> &mdash; carries three 8-oz pucks and releases them one at a time.</li>
+          <li><strong>Launching</strong> &mdash; gives each puck enough speed to travel from the hog line into the rings.</li>
+        </ul>
+        <p>
+          All of them had to share a 13&nbsp;&times;&nbsp;13&nbsp;in footprint and one battery, which drove the first and
+          biggest design decision: the robot&rsquo;s layout.
+        </p>
+
+        <!-- ---- Two levels---- -->
+        <h3 class="pp-subtitle" id="layers">Why two levels?</h3>
+        <p class="pp-subquestion">How do we fit everything into 13 inches &mdash; and still launch a puck?</p>
+        <p>
+          <strong>There is no room on one level.</strong> The 13&nbsp;&times;&nbsp;13&nbsp;in footprint has to hold four
+          drive motors, ten sensors, the electronics, the puck storage, and a launcher. Spreading them out was impossible,
+          so the robot had to grow upward.
+        </p>
+        <p>
+          <strong>Height is also our energy source.</strong> We tested whether a puck released from the hog line could
+          reach the center scoring zone using gravitational energy alone &mdash; and it could, as long as it started high
+          enough. That made the upper level the natural place to store the pucks.
+        </p>
+        <p>
+          <strong>But the robot must stay stable.</strong> To keep the center of mass low, only the puck storage and its
+          servo sit on the upper level. The drivetrain, sensors, wiring, and electronics all stay on the lower level.
+        </p>
+        <div class="pp-grid-3">
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/cad-model.png" alt="Full CAD model" loading="lazy">
+            <figcaption>Full CAD model</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/cad-front.png" alt="Front view" loading="lazy">
+            <figcaption>Front view: upper-level storage, slide, and omni-wheels</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/drivetrain-build.jpg" alt="Drivetrain prototype" loading="lazy">
+            <figcaption>Lower-level drivetrain prototype</figcaption>
+          </figure>
+        </div>
+
+        <!-- ---- Storage---- -->
+        <h3 class="pp-subtitle" id="storage">Storing the pucks</h3>
+        <p class="pp-subquestion">How do we carry three pucks without wasting space or tipping the robot?</p>
+        <p>
+          Three 8-oz pucks are the heaviest payload on the robot, and they sit on the upper level. The storage had to be
+          compact and keep their weight close to the robot&rsquo;s center as they are released one by one. We compared two
+          concepts:
+        </p>
+        <div class="pp-grid">
+          <figure class="pp-concept">
+            <img class="pp-concept-sm" src="../images/projects/curling/concept-slide-storage.png" alt="Gated ramp sketch" loading="lazy">
+            <figcaption>
+              <span class="pp-tag">Concept A</span>
+              <strong>Gated ramp</strong>
+              <span class="pp-pc"><span class="pp-pro">+</span> Centered on the chassis for even weight distribution; three gates give a controlled, one-by-one release.</span>
+              <span class="pp-pc"><span class="pp-con">&minus;</span> Three gates mean three actuators, and the inclined ramp takes up height and space.</span>
+            </figcaption>
+          </figure>
+          <figure class="pp-concept">
+            <img src="../images/projects/curling/concept-rotary-dispenser.png" alt="Rotary dispenser sketch" loading="lazy">
+            <figcaption>
+              <span class="pp-tag pp-tag-kept">Selected</span>
+              <strong>Rotary dispenser</strong>
+              <span class="pp-pc"><span class="pp-pro">+</span> One servo indexes all three pucks, pushing each into a drop hole; servo angle tells us when it is empty.</span>
+              <span class="pp-pc"><span class="pp-con">&minus;</span> The servo must move the full puck load, so torque has to be sized carefully.</span>
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          The <strong>rotary dispenser</strong> won: a four-arm rotor stores the pucks in a compact ring and pushes them,
+          one at a time, into a drop hole. To size the servo, we took the worst case of all three pucks on a 3-inch arm:
+        </p>
+        <p class="pp-equation">&tau;<sub>min</sub> = 24&nbsp;oz &times; 3&nbsp;in = 72&nbsp;ozf&middot;in &asymp; 5.2&nbsp;kgf&middot;cm</p>
+        <div class="pp-grid">
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/dispenser-sketch.png" alt="Dispenser top-view sketch" loading="lazy" style="max-height:260px">
+            <figcaption>Top-view sketch: three pucks and one drop hole</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/dispenser.png" alt="Final rotating dispenser in CAD" loading="lazy" style="max-height:260px">
+            <figcaption>Final CAD: mounted off-center so each push lines up with slide axis</figcaption>
+          </figure>
+        </div>
+
+        <!-- ---- Launch---- -->
+        <h3 class="pp-subtitle" id="launch">Launching the pucks</h3>
+        <p class="pp-subquestion">What gives a puck enough speed while staying stable and compact?</p>
+        <p>
+          The launcher had to deliver a repeatable shot without shaking the robot or eating into the little space left.
+          We sketched four concepts and weighed them against each other:
+        </p>
+        <div class="pp-grid">
+          <figure class="pp-concept">
+            <img src="../images/projects/curling/concept-flywheel-2.png" alt="Two-wheel flywheel sketch" loading="lazy">
+            <figcaption>
+              <span class="pp-tag">Concept 1 &middot; prototyped</span>
+              <strong>Two-wheel flywheel</strong>
+              <span class="pp-pc"><span class="pp-pro">+</span> Two counter-rotating wheels squeeze the puck for a balanced, controlled release.</span>
+              <span class="pp-pc"><span class="pp-con">&minus;</span> Two extra motors add weight, current draw, and space.</span>
+            </figcaption>
+          </figure>
+          <figure class="pp-concept">
+            <img src="../images/projects/curling/concept-flywheel-1.png" alt="Single-wheel flywheel sketch" loading="lazy">
+            <figcaption>
+              <span class="pp-tag">Concept 2</span>
+              <strong>Single-wheel flywheel</strong>
+              <span class="pp-pc"><span class="pp-pro">+</span> A wheel sweeps the puck along a curved guide for the highest exit speed.</span>
+              <span class="pp-pc"><span class="pp-con">&minus;</span> Needs more internal space, takes longer per shot, and recoils the robot.</span>
+            </figcaption>
+          </figure>
+          <figure class="pp-concept">
+            <img src="../images/projects/curling/concept-push.png" alt="Push sketch" loading="lazy">
+            <figcaption>
+              <span class="pp-tag">Concept 3</span>
+              <strong>Push</strong>
+              <span class="pp-pc"><span class="pp-pro">+</span> The robot accelerates forward and releases the puck from a clamper, giving it the robot&rsquo;s speed.</span>
+              <span class="pp-pc"><span class="pp-con">&minus;</span> Relies on driving hard toward the hog line, risking a penalty.</span>
+            </figcaption>
+          </figure>
+          <figure class="pp-concept">
+            <img src="../images/projects/curling/concept-shove.png" alt="Shoving sketch" loading="lazy">
+            <figcaption>
+              <span class="pp-tag">Concept 4</span>
+              <strong>Shoving</strong>
+              <span class="pp-pc"><span class="pp-pro">+</span> A servo swings the clamper to hit the puck and give it kinetic energy.</span>
+              <span class="pp-pc"><span class="pp-con">&minus;</span> Demands high servo torque and a tall arm that is hard to fit.</span>
+            </figcaption>
+          </figure>
+        </div>
+        <h4 class="pp-subsubtitle">Testing the flywheel &mdash; and dropping it</h4>
+        <p>
+          The two-wheel flywheel looked the most controllable, so we laid it out at the front of the chassis and built a
+          prototype. At <strong>500&nbsp;rpm</strong> the puck gained very little speed: the wheels spun too slowly, and the
+          rigid wheels could not deform to grip it. In parallel we tested the <strong>potential-energy plan</strong> &mdash;
+          and simply dropping the pucks from the upper level down a slide gave them enough energy on their own. The
+          flywheels, with their extra motors, weight, and current draw, were removed.
+        </p>
+        <div class="pp-grid">
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/concept-layout-flywheel.png" alt="Top-view layout with flywheels" loading="lazy" style="max-height:300px">
+            <figcaption>Early layout: flywheels in front of the slide and dispenser</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/cad-early.png" alt="Early CAD model" loading="lazy" style="max-height:300px">
+            <figcaption>Early CAD: single-level chassis with the dispenser on top</figcaption>
+          </figure>
+        </div>
+
+        <!-- ---- Slide---- -->
+        <h3 class="pp-subtitle" id="slide">The fastest slide</h3>
+        <p class="pp-subquestion">Which curve loses the least energy on the way down?</p>
+        <p>
+          With gravity as the only energy source, every bit lost in the slide matters. Instead of a straight ramp, we
+          shaped the slide as a <strong>brachistochrone</strong> &mdash; the curve of fastest descent. The puck picks up
+          speed early, reaches the bottom in the least time, and exits tangentially with no vertical bounce.
+        </p>
+        <p>
+          We plotted the curve with a <strong>MATLAB script</strong> and modeled the slide in Fusion 360 to follow it
+          exactly. The exit energy combines the servo&rsquo;s push with the 10-inch drop:
+        </p>
+        <p class="pp-equation"><em>E</em><sub>total</sub> = &frac12; <em>m v</em><sub>servo</sub><sup>2</sup> + <em>m g h</em><sub>slide</sub></p>
+        <!-- 有 MATLAB 曲线图后可加在这里，和 slide.png 放成一行 -->
+        <figure class="pp-figure">
+          <img src="../images/projects/curling/slide.png" alt="Brachistochrone slide" loading="lazy" style="max-height:320px">
+          <figcaption>The slide follows the brachistochrone and exits tangentially</figcaption>
+        </figure>
+        <ul class="pp-result-list">
+          <li><span class="pp-k">Actuators for storage + launch</span><span class="pp-v">1 servo</span></li>
+          <li><span class="pp-k">Launch motors removed</span><span class="pp-v">2 flywheels</span></li>
+        </ul>
+
+        <!-- ---- Sensing---- -->
+        <h3 class="pp-subtitle" id="sensing">Sensing the tape</h3>
+        <p class="pp-subquestion">How does the robot know where it is on the route?</p>
+        <div class="pp-split">
+          <div>
+            <p>
+              Six <strong>IR sensors</strong> under the chassis read the black tape: a central triple array keeps the
+              robot on the line, a front pair spots the hog line, and a rear sensor handles reversing and finding the tape
+              after leaving the waiting area.
+            </p>
+            <p>
+              Each tape crossing is also an event for the <strong>state machine</strong> &mdash; it is what moves the robot
+              from orienting, to line following, to shooting, to returning. Four ultrasonic sensors on the left and rear
+              faces complete the picture by measuring wall distances for orientation.
+            </p>
+          </div>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/cad-bottom.png" alt="Bottom view with motors and sensors" loading="lazy">
+            <figcaption>Bottom view: drive motors and the IR / ultrasonic sensor layout</figcaption>
+          </figure>
+        </div>
+
+        <!-- ---- Electrical---- -->
+        <h3 class="pp-subtitle" id="electrical">Electronics</h3>
+        <p class="pp-subquestion">How is everything powered and wired?</p>
+        <p>
+          An <strong>Arduino Mega 2560</strong> runs the robot from a 7.2&nbsp;V NiMH battery. The battery rail feeds the
+          Arduino and the servo, and a step-up converter supplies 12&nbsp;V to two L298N H-bridges for the four drive
+          motors. Because battery voltage sags during a run, the motor PWM is voltage-compensated from a battery reading,
+          and a short soft start avoids inrush spikes. A 10&nbsp;A fuse protects the system, sized from a ~7&nbsp;A peak
+          with a 1.4 safety factor. We drew the schematics in KiCad:
+        </p>
+        <div class="pp-grid">
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/schematic-1.png" alt="Main schematic" loading="lazy">
+            <figcaption>Main schematic: power, Arduino Mega, and motor drivers</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/schematic-2.png" alt="Detail schematics" loading="lazy">
+            <figcaption>Detail views: motor drivers, ultrasonic and IR sensor wiring</figcaption>
+          </figure>
+        </div>
+
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 8. Results ============ -->
+      <section id="results" class="pp-section">
+        <h2 class="pp-section-title">Results &amp; demo</h2>
+        <p class="pp-question">Does the whole sequence hold together?</p>
+        <p>
+          The robot completed the full autonomous run &mdash; orientation, line following, puck dispensing, and return
+          &mdash; within the 2-minute limit, and ranked <strong>5th out of 20 teams</strong> in the final checkoff.
+        </p>
+        <figure class="pp-figure">
+          <div class="pp-video-wide">
+            <iframe src="https://drive.google.com/file/d/1mtI6GAG2PKxT_TYHK5NpO9vO_ZwVnhq-/preview" title="Full-cycle demo" allow="autoplay" allowfullscreen loading="lazy"></iframe>
+          </div>
+          <figcaption>Full-cycle autonomous run</figcaption>
+        </figure>
+        <div class="pp-grid">
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/team-1.jpg" alt="Team at the competition" loading="lazy">
+            <figcaption>Final adjustments at the competition</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/curling/team-2.jpg" alt="Setting up for a run" loading="lazy">
+            <figcaption>Setting up for a run</figcaption>
+          </figure>
+        </div>
+      </section>
+
+    </div>
+  </body>
+</html>
