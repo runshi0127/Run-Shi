@@ -12,52 +12,56 @@
   </head>
 
   <body>
-    <!-- 图片都在 images/，同名替换成清晰照片即可 -->
-    <div class="pp">
+    <!-- Images live in images/projects/lockpicking/ -->
 
-      <p class="pp-back"><a href="../index.html">&larr; Back to home</a></p>
-
-
-      <!-- ============ 标题 ============ -->
-      <header class="pp-hero">
+    <!-- ============ Title (background image) ============ -->
+    <header class="pp-banner pp-banner-tall" style="background-image:url('../images/projects/lockpicking/title.jpg');background-position:center 70%">
+      <div class="pp-banner-inner">
+        <p class="pp-back"><a href="../index.html">&larr; Back to home</a></p>
         <h1 class="pp-title">Lock Picking Master: A Haptic Lock-Picking Simulator</h1>
         <p class="pp-authors">Serena Liu, Liwen Fan, Run Shi, Chia-Ling Weng</p>
         <p class="pp-affil">Stanford ME327: Design and Control of Haptic Systems &middot; Spring 2026</p>
-        <p class="pp-links">
+        <p>
           <a href="https://youtube.com/shorts/-TE6WEep_Y8">Demo Video</a> /
           <a href="https://charm.stanford.edu/ME327/2026-Group4">Course Project Page</a> /
           <a href="https://web.stanford.edu/group/charm/cgi-bin/pmwiki/uploads/Team4_Code">Code</a> /
           <a href="https://web.stanford.edu/group/charm/cgi-bin/pmwiki/uploads/Bill_of_Materials.xlsx">Bill of Materials</a>
         </p>
-      </header>
+      </div>
+    </header>
 
-      <!-- ============ 目录 ============ -->
+    <div class="pp">
+
+      <!-- ============ Contents ============ -->
       <ul class="pp-nav">
-        <li><a href="#why">Why haptic lock picking?</a></li>
-        <li><a href="#device">A 2-DoF haptic pick</a></li>
+        <li><a href="#challenge">The challenge</a></li>
+        <li><a href="#motion">Two motions, two DoF</a></li>
+        <li><a href="#design">System design</a></li>
+        <li><a href="#rail">Moving along the keyway</a></li>
+        <li><a href="#lift">Lifting a pin</a></li>
+        <li><a href="#electrical">Electronics</a></li>
         <li><a href="#render">Rendering a pin</a></li>
-        <li><a href="#feedback">Three feedback channels</a></li>
-        <li><a href="#results">Demo Day results</a></li>
+        <li><a href="#gui">Seeing inside the lock</a></li>
+        <li><a href="#results">Results &amp; demo</a></li>
         <li><a href="#next">What&rsquo;s next</a></li>
-        <li><a href="#team">Team</a></li>
       </ul>
 
-      <!-- ============ 一句话总结 ============ -->
+      <!-- ============ One-line summary ============ -->
       <div class="pp-thesis">
         <p>Lock picking is a task you do by <em>feel</em>, not by sight &mdash; which makes it a natural test bed for force-feedback interfaces.</p>
-        <p><span class="pp-key">The key idea?</span> Render each virtual pin as a spring-damper on a custom 2-DoF device, and layer kinesthetic force, vibrotactile clicks, and a live visualization so users can read the hidden state of the lock.</p>
+        <p><span class="pp-key">The key idea?</span> Render each virtual pin as a spring-damper on a custom 2-DoF device, and layer kinesthetic force, a force-drop click, a vibrotactile buzz, and a live visualization so users can read the hidden state of the lock.</p>
       </div>
 
       <figure class="pp-figure">
-        <img src="../images/projects/lockpicking/title.jpg" alt="Final Lock Picking Master prototype" style="max-width:420px">
-        <figcaption>Final prototype: the integrated hardware and software system</figcaption>
+        <img src="../images/projects/lockpicking/demo-day.jpg" alt="The simulator set up at ME327 Demo Day" style="width:100%;max-height:none;aspect-ratio:2.2 / 1;object-fit:cover;object-position:center 75%">
+        <figcaption>The final simulator at Demo Day: the haptic pick in front, the live lock visualization behind</figcaption>
       </figure>
 
       <hr class="pp-sep">
 
-      <!-- ============ 1. Why ============ -->
-      <section id="why" class="pp-section">
-        <h2 class="pp-section-title">Why haptic lock picking?</h2>
+      <!-- ============ 1. Challenge ============ -->
+      <section id="challenge" class="pp-section">
+        <h2 class="pp-section-title">The challenge</h2>
         <p class="pp-question">What makes lock picking a good haptics problem?</p>
         <p>
           Picking a pin-tumbler lock depends on subtle variations in force and stiffness rather than visual feedback.
@@ -66,111 +70,262 @@
           resistance to guide their motion.
         </p>
         <p>
-          We model the lock pick as a tool interacting with four virtual pin stacks, each with a different spring
-          stiffness and target height. Our goal was a simulator that lets users feel the pins and open a virtual lock
-          through real-time force feedback and visualization.
+          Our goal was a simulator that lets users feel each pin, find the narrow height where it sets, and open a
+          virtual lock through real-time force feedback alone &mdash; with the screen there to help them learn, not to
+          do the work for them.
         </p>
+        <div class="pp-result-row">
+          <span class="pp-item"><span class="pp-k">Degrees of freedom</span><span class="pp-v">2</span></span>
+          <span class="pp-item"><span class="pp-k">Virtual pins</span><span class="pp-v">5</span></span>
+          <span class="pp-item"><span class="pp-k">Feedback channels</span><span class="pp-v">3</span></span>
+        </div>
       </section>
 
       <hr class="pp-sep">
 
-      <!-- ============ 2. Device ============ -->
-      <section id="device" class="pp-section">
-        <h2 class="pp-section-title">A 2-DoF haptic pick</h2>
-        <p class="pp-question">How does the device map to real lock-picking motions?</p>
+      <!-- ============ 2. Motion ============ -->
+      <section id="motion" class="pp-section">
+        <h2 class="pp-section-title">Two motions, two DoF</h2>
+        <p class="pp-question">Which parts of a real pick do we actually need to render?</p>
         <p>
-          The first degree of freedom is <strong>insertion depth</strong>: a linear rail and carriage driven by a
-          stepper motor lets the user slide the pick to select a pin. The second is <strong>rotational tilt</strong>:
-          a motorized handle with an encoder lifts the selected pin, and its angle is translated into virtual pin
-          displacement in real time.
+          A real pick does two things: it slides <strong>in and out of the keyway</strong> to choose a pin, and it
+          <strong>levers up</strong> to push that pin toward the shear line. We gave each motion its own degree of
+          freedom:
         </p>
+        <ol>
+          <li><strong>Insertion depth (x)</strong> &mdash; a carriage on a linear rail moves the whole pick back and forth, indexing from one pin to the next.</li>
+          <li><strong>Lift (y)</strong> &mdash; the handle pivots on a motor shaft; rotating it lifts the selected pin, and the same motor pushes back with the pin&rsquo;s spring force.</li>
+        </ol>
+        <div class="pp-grid">
+          <figure class="pp-figure">
+            <img src="../images/projects/lockpicking/sketch.png" alt="Early concept sketch of the lock picking device" loading="lazy">
+            <figcaption>First sketch: the pick rides a carriage along <em>x</em> and tilts to lift along <em>y</em></figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/lockpicking/cad-annotated.jpg" alt="Annotated CAD showing forces and motions" loading="lazy">
+            <figcaption>The CAD maps each motion to one DoF: back-and-forth in the keyway, rotation about the pivot to pick</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <hr class="pp-sep">
+
+      <!-- ============ 3. System design ============ -->
+      <section id="design" class="pp-section">
+        <h2 class="pp-section-title">System design</h2>
+        <p class="pp-question">How do we turn two motions into a working device?</p>
+        <p>The simulator splits into four subsystems, each owning one part of the experience:</p>
+        <ul>
+          <li><strong>Insertion stage</strong> &mdash; a stepper-driven linear rail that carries the pick from pin to pin.</li>
+          <li><strong>Haptic pick</strong> &mdash; a handle on a <strong>Dynamixel XL330</strong> that measures lift angle and renders pin force through current control.</li>
+          <li><strong>Lock model</strong> &mdash; a Python state machine on the host computer that turns lift into force and decides when each pin sets.</li>
+          <li><strong>Feedback</strong> &mdash; an ERM vibration motor for discrete events and a Processing visualization of the lock.</li>
+        </ul>
         <p>
           The lock housing, rail supports, pick handle, motor mounts, and electronics brackets were designed in CAD and
           3D printed, with several iterations to improve stiffness, alignment, and ease of assembly.
         </p>
         <div class="pp-grid">
           <figure class="pp-figure">
-            <img src="../images/projects/lockpicking/cad-system.png" alt="CAD model of the system design">
+            <img src="../images/projects/lockpicking/cad-system.png" alt="CAD model of the full system" loading="lazy">
             <figcaption>CAD model of the full system</figcaption>
           </figure>
           <figure class="pp-figure">
-            <img src="../images/projects/lockpicking/cad-mechanism.png" alt="Detailed CAD view of the lock picking mechanism">
+            <img src="../images/projects/lockpicking/cad-mechanism.png" alt="Detailed CAD view of the picking mechanism" loading="lazy">
             <figcaption>The stepper drives horizontal motion; the handle, mounted on the servo, gives the vertical picking motion</figcaption>
           </figure>
         </div>
+
+        <!-- ---- Rail ---- -->
+        <h3 class="pp-subtitle" id="rail">Moving along the keyway</h3>
+        <p class="pp-subquestion">How should the pick travel from one pin to the next?</p>
         <p>
-          The electronics pair an Arduino and an A4988 stepper driver with a <strong>Dynamixel XL330</strong> for force
-          rendering and an <strong>ERM vibration motor</strong> for tactile events. A host computer runs the lock
-          simulation and talks to the hardware over serial, keeping low-level motor control separate from high-level
-          simulation.
+          The horizontal stage only has to bring the pick under each pin in turn, so precise, repeatable positioning
+          mattered more than rendering force along <em>x</em>. We compared two transmissions:
+        </p>
+        <div class="pp-grid">
+          <figure class="pp-concept">
+            <figcaption>
+              <span class="pp-tag">Concept A</span>
+              <strong>Capstan drive</strong>
+              <span class="pp-pc">A cable wrapped around a motor drum &mdash; the classic transmission for smooth, backdrivable haptic axes.</span>
+            </figcaption>
+          </figure>
+          <figure class="pp-concept">
+            <figcaption>
+              <span class="pp-tag pp-tag-kept">Selected</span>
+              <strong>Stepper-driven linear rail</strong>
+              <span class="pp-pc">A lead-screw rail moves the carriage in fixed steps, so the pick lands under each pin at the same place every time.</span>
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          We chose the <strong>linear rail</strong>. An Arduino drives the stepper through an A4988 and advances exactly
+          <strong>200 steps per pin</strong> on command. The driver is enabled only while moving, which lets the motor cool
+          between pins.
+        </p>
+
+        <!-- ---- Lift ---- -->
+        <h3 class="pp-subtitle" id="lift">Lifting a pin</h3>
+        <p class="pp-subquestion">How do we sense the lift and push back on the user&rsquo;s hand?</p>
+        <p>
+          The handle is bolted straight to the horn of a Dynamixel XL330, so one motor both <strong>senses</strong> the
+          lift and <strong>renders</strong> the force with no extra transmission. The encoder angle <em>&theta;</em> is
+          converted into pin lift at the tip of the 140&nbsp;mm handle:
+        </p>
+        <p class="pp-equation"><em>x</em> = <em>L</em>&nbsp;&theta;, &nbsp;&nbsp; <em>L</em> = 0.140&nbsp;m</p>
+        <p>
+          The first prototype put the servo in a boxy housing above the rail. The final version moved to a long,
+          slim handle on a compact pivot block that rides a guide rail alongside the linear actuator.
         </p>
         <div class="pp-grid">
           <figure class="pp-figure">
-            <img src="../images/projects/lockpicking/hardware.jpg" alt="Hardware system assembly">
-            <figcaption>Electrical and mechanical assembly</figcaption>
+            <img src="../images/projects/lockpicking/prototype-early.jpg" alt="First prototype with servo housing on the rail" loading="lazy" style="max-height:280px">
+            <figcaption>First prototype: servo housing mounted on the rail carriage</figcaption>
           </figure>
           <figure class="pp-figure">
-            <img src="../images/projects/lockpicking/schematics.png" alt="Circuit schematics">
+            <img src="../images/projects/lockpicking/prototype-side.png" alt="Assembled second prototype with labels" loading="lazy" style="max-height:280px">
+            <figcaption>Second prototype: handle, stepper, guide rail, and linear actuator</figcaption>
+          </figure>
+        </div>
+
+        <!-- ---- Electronics ---- -->
+        <h3 class="pp-subtitle" id="electrical">Electronics</h3>
+        <p class="pp-subquestion">How do the host, the Arduino, and the motors talk to each other?</p>
+        <p>
+          A host computer runs the lock simulation and talks to two devices over serial at 115200&nbsp;baud: the Dynamixel
+          (on its own serial port) for force rendering, and an Arduino that drives the A4988 stepper driver and the
+          ERM motor. This keeps low-level motor timing on the Arduino and the lock model on the host. The Arduino listens
+          for single-character commands:
+        </p>
+        <div class="pp-table-wrap">
+          <table class="pp-table">
+            <tr><th>Command</th><th>Action</th><th>Reply</th></tr>
+            <tr><td><code>N</code></td><td>Advance one pin (200 steps)</td><td><code>DONE</code></td></tr>
+            <tr><td><code>B</code></td><td>Reverse 1000 steps</td><td><code>BACK_DONE</code></td></tr>
+            <tr><td><code>R</code></td><td>Return to the first pin</td><td><code>RESET_DONE</code></td></tr>
+            <tr><td><code>V</code></td><td>Buzz the ERM twice (300&nbsp;ms on, 100&nbsp;ms off)</td><td><code>VIBE_DONE</code></td></tr>
+          </table>
+        </div>
+        <div class="pp-grid">
+          <figure class="pp-figure">
+            <img src="../images/projects/lockpicking/prototype-boards.png" alt="Prototype with Arduino, motor driver, and battery" loading="lazy" style="max-height:340px">
+            <figcaption>Bench prototype: Arduino, motor driver, battery, and picking equipment</figcaption>
+          </figure>
+          <figure class="pp-figure">
+            <img src="../images/projects/lockpicking/schematics.png" alt="Circuit schematics" loading="lazy" style="max-height:340px">
             <figcaption>Circuit schematics for the stepper driver, Arduino, and power distribution</figcaption>
           </figure>
         </div>
+        <figure class="pp-figure">
+          <img src="../images/projects/lockpicking/hardware.jpg" alt="Final hardware assembly" loading="lazy" style="max-height:360px">
+          <figcaption>Final electrical and mechanical assembly</figcaption>
+        </figure>
       </section>
 
       <hr class="pp-sep">
 
-      <!-- ============ 3. Rendering ============ -->
+      <!-- ============ 4. Rendering ============ -->
       <section id="render" class="pp-section">
         <h2 class="pp-section-title">Rendering a pin</h2>
-        <p class="pp-question">What should each pin feel like?</p>
+        <p class="pp-question">What should each pin feel like &mdash; and when does it set?</p>
         <p>
-          Each pin is a virtual spring-damper with its own stiffness, damping, and set position. The handle angle sets
-          the pin lift, and the reaction force is
+          Each pin is a virtual spring-damper with its own stiffness, damping, and set height. The handle lift sets the
+          pin displacement, and the reaction force is
         </p>
         <p class="pp-equation"><em>F</em> = &minus;<em>k x</em> &minus; <em>b v</em></p>
         <p>
-          where <em>k</em> is pin stiffness, <em>b</em> is damping, <em>x</em> is pin displacement, and <em>v</em> is
-          pin velocity. The force is converted to motor torque and rendered through the Dynamixel, with velocity
-          filtering and current limiting for stable, safe interaction.
+          where <em>v</em> is the lift velocity, smoothed with an exponential filter (&alpha; = 0.15) to keep the damping
+          term from amplifying encoder noise. Every pin gets different parameters, so each one feels different under the
+          hand. They are generated from a fixed seed, so every player gets the same lock:
         </p>
+        <ul class="pp-result-list">
+          <li><span class="pp-k">Pin stiffness <em>k</em></span><span class="pp-v">40 &ndash; 100 N/m</span></li>
+          <li><span class="pp-k">Pin damping <em>b</em></span><span class="pp-v">0.5 &ndash; 1.2 N&middot;s/m</span></li>
+          <li><span class="pp-k">Set height</span><span class="pp-v">15 &ndash; 22 mm</span></li>
+          <li><span class="pp-k">Sweet-spot width</span><span class="pp-v">3 mm</span></li>
+          <li><span class="pp-k">Hold time to set</span><span class="pp-v">2.0 s</span></li>
+        </ul>
+
+        <h3 class="pp-subtitle">Setting, overshooting, and the click</h3>
+        <p class="pp-subquestion">How do we make it feel like a real pin, not just a spring?</p>
         <p>
-          To make it feel like a real lock, a pin only sets after being held inside a narrow set region for a fixed
-          duration. <strong>Overshoot detection</strong> blocks setting if the user lifts too far, mimicking over-setting
-          a real pin. Once a pin sets, the simulator fires a transient <strong>click</strong> and briefly releases the
-          force, as if the pin dropped into place.
+          A pin only sets if the user holds it inside a narrow <strong>sweet spot</strong> &mdash; between its set height
+          and 3&nbsp;mm above it &mdash; for 2 seconds. Lifting too far is <strong>overshooting</strong>, just like
+          over-setting a real pin: the timer resets, and a stiff virtual wall pushes back:
+        </p>
+        <p class="pp-equation"><em>F</em><sub>wall</sub> = &minus;<em>k</em><sub>wall</sub>(<em>x</em> &minus; <em>x</em><sub>set</sub> &minus; 3&nbsp;mm), &nbsp;&nbsp; <em>k</em><sub>wall</sub> = 200&nbsp;N/m</p>
+        <p>
+          Once a pin sets, the force drops to zero for 0.5&nbsp;s &mdash; a transient <strong>click</strong> that feels like
+          the pin falling into place. The user then returns the pick to neutral, the stepper advances to the next pin, and
+          the cycle repeats until the last pin sets and the ERM buzzes twice to announce the lock is open.
+        </p>
+
+        <h3 class="pp-subtitle">From force to motor current</h3>
+        <p class="pp-subquestion">How does a virtual force become something you can feel?</p>
+        <p>
+          The pin force is converted to a handle torque, then to a Dynamixel current command:
+        </p>
+        <p class="pp-equation">&tau; = <em>F L</em>, &nbsp;&nbsp; <em>I</em> = &tau; / <em>K</em><sub>&tau;</sub></p>
+        <p>
+          Small commands inside a deadband are zeroed to stop the handle from buzzing at rest, and every command is clipped
+          to a <strong>current limit</strong> so the device stays safe no matter what the model asks for.
         </p>
         <figure class="pp-figure">
-          <img src="../images/projects/lockpicking/pipeline.png" alt="System pipeline and calculations">
+          <img src="../images/projects/lockpicking/pipeline.png" alt="System pipeline" loading="lazy">
           <figcaption>Overall pipeline linking sensing, the virtual lock model, and haptic output</figcaption>
         </figure>
       </section>
 
       <hr class="pp-sep">
 
-      <!-- ============ 4. Feedback ============ -->
-      <section id="feedback" class="pp-section">
-        <h2 class="pp-section-title">Three feedback channels</h2>
-        <p class="pp-question">How does the user know what&rsquo;s happening inside the lock?</p>
+      <!-- ============ 5. GUI ============ -->
+      <section id="gui" class="pp-section">
+        <h2 class="pp-section-title">Seeing inside the lock</h2>
+        <p class="pp-question">How does a first-time user learn what they&rsquo;re feeling?</p>
         <p>
-          The user rotates the handle to lift a pin while feeling its spring resistance. Holding it in the set range
-          long enough sets the pin with a click; the user returns the pick to neutral and moves to the next pin until
-          the lock opens.
+          The haptics carry the experience, but a new user needs to connect each sensation to what is happening inside the
+          lock. We prototyped two visualizations of the pin stacks:
+        </p>
+        <div class="pp-grid">
+          <figure class="pp-concept">
+            <img src="../images/projects/lockpicking/gui-pygame.png" alt="Pygame visualization" loading="lazy">
+            <figcaption>
+              <span class="pp-tag">Concept A</span>
+              <strong>Pygame cross-section</strong>
+              <span class="pp-pc">A dark, side-on view of the pin stacks and springs, with a feedback panel for lift, torque, and pin states.</span>
+            </figcaption>
+          </figure>
+          <figure class="pp-concept">
+            <img src="../images/projects/lockpicking/gui-processing.png" alt="Processing visualization" loading="lazy">
+            <figcaption>
+              <span class="pp-tag pp-tag-kept">Selected</span>
+              <strong>Processing lock view</strong>
+              <span class="pp-pc">A lock-shaped schematic with color-coded pins (unset, active, set) and a live-state panel.</span>
+            </figcaption>
+          </figure>
+        </div>
+        <p>
+          We kept the <strong>Processing</strong> version and redesigned it to look like a real lock. The host streams the
+          active pin, set pins, lift, force, hold progress, and events (such as overshoot or pin set) over serial, so the
+          screen always matches what the hand feels.
         </p>
         <div class="pp-result-row">
           <span class="pp-item"><span class="pp-k">Kinesthetic</span><span class="pp-v">pin stiffness &amp; resistance</span></span>
-          <span class="pp-item"><span class="pp-k">Vibrotactile</span><span class="pp-v">pin set &amp; lock open</span></span>
+          <span class="pp-item"><span class="pp-k">Vibrotactile</span><span class="pp-v">lock open</span></span>
           <span class="pp-item"><span class="pp-k">Visual</span><span class="pp-v">pin heights &amp; lock state</span></span>
         </div>
         <figure class="pp-figure">
-          <img src="../images/projects/lockpicking/visualization.png" alt="Lock visualization interface">
-          <figcaption>A Processing interface shows the active pin, set progress, and lock status in real time</figcaption>
+          <img src="../images/projects/lockpicking/visualization.png" alt="Lock visualization with all pins set" loading="lazy">
+          <figcaption>The Processing interface with every pin set and the lock open</figcaption>
         </figure>
       </section>
 
       <hr class="pp-sep">
 
-      <!-- ============ 5. Results ============ -->
+      <!-- ============ 6. Results ============ -->
       <section id="results" class="pp-section">
-        <h2 class="pp-section-title">Demo Day results</h2>
+        <h2 class="pp-section-title">Results &amp; demo</h2>
         <p class="pp-question">Could people actually feel the lock?</p>
         <p>
           At the ME327 Demo Day, participants tried the simulator and filled out a post-experience survey. Users
@@ -190,20 +345,20 @@
         <div class="pp-grid">
           <figure class="pp-figure">
             <div class="pp-video">
-              <iframe src="https://www.youtube.com/embed/-TE6WEep_Y8" title="Lock Picking Master demo video" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe>
+              <iframe src="https://www.youtube.com/embed/-TE6WEep_Y8" title="Lock Picking Master demo video" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>
             </div>
             <figcaption>Demo video</figcaption>
           </figure>
           <figure class="pp-figure">
-            <img src="../images/projects/lockpicking/demo-day.jpg" alt="Demo Day setup">
-            <figcaption>Final prototype at Demo Day</figcaption>
+            <img src="../images/projects/lockpicking/title.jpg" alt="Lock opened at Demo Day" loading="lazy">
+            <figcaption>&ldquo;Congratulations, Lock Picking Master!&rdquo; &mdash; all five pins set</figcaption>
           </figure>
         </div>
       </section>
 
       <hr class="pp-sep">
 
-      <!-- ============ 6. Next ============ -->
+      <!-- ============ 7. Next ============ -->
       <section id="next" class="pp-section">
         <h2 class="pp-section-title">What&rsquo;s next</h2>
         <p class="pp-question">What would make it feel more like a real lock?</p>
@@ -215,17 +370,9 @@
         </p>
         <p>
           Since the pin-setting sensation scored slightly lower than the other categories, the click and set events
-          could also be refined with sharper force transients and better vibrotactile cues.
+          could also be refined with sharper force transients and better vibrotactile cues. More pin types and lock
+          configurations would add variety and difficulty levels.
         </p>
-      </section>
-
-      <hr class="pp-sep">
-
-      <!-- ============ 7. Team ============ -->
-      <section id="team" class="pp-section">
-        <h2 class="pp-section-title">Team</h2>
-        <p style="text-align:center">Serena Liu, Liwen Fan, Run Shi, Chia-Ling Weng</p>
-        <!-- 建议写一句你自己负责的部分，例如：My role: ... -->
         <p class="pp-caption-text">
           We thank Prof. Allison Okamura for her guidance in refining the project direction, and course assistant
           Megan Coram for help debugging the stepper motor setup.
